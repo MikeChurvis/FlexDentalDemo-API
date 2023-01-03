@@ -1,18 +1,27 @@
-# `docker compose up` loads ./.env by default.
-# Use a real secrets manager like GitHub Secrets or
-# AWS Secrets Manager in production.
+# !!! DEBUG ONLY !!!
+#
+# Use the raw image in production. Spin it up with the AWS console/cli
+# or orchestrate deployment with Terraform.
 
 services:
   kanban-service:
     build: .
+
+    # `docker compose up` loads ./.env by default.
+    # Use a real secrets manager like GitHub Secrets or
+    # AWS Secrets Manager in production.
     environment:
       DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      DJANGO_DEBUG: 1
+
     ports:
       - 8000:8000
+
+    # This supports hot
     volumes:
       - ./:/code
 
-    # DEBUG ONLY. Use Uvicorn behind a reverse proxy in production.
+    # Use Uvicorn behind a reverse proxy in production.
     command:
       - python
       - manage.py
