@@ -1,0 +1,10 @@
+# Git artifacts
+.git
+.gitignore
+.github
+
+# Secrets
+.env
+
+# Compose file
+docker-compose*.yml

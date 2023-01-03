@@ -1,0 +1,22 @@
+# `docker compose up` loads ./.env by default.
+# Use a real secrets manager like GitHub Secrets or
+# AWS Secrets Manager in production.
+
+services:
+  kanban-service:
+    build: .
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+    ports:
+      - 8000:8000
+    volumes:
+      - ./:/code
+
+    # DEBUG ONLY. Use Uvicorn behind a reverse proxy in production.
+    command:
+      - python
+      - manage.py
+      - runserver
+      - 0.0.0.0:8000
+      # ^^^^^^^ listens on the whole network,
+      # not just inside the container (localhost).
