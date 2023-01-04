@@ -132,3 +132,7 @@ REST_FRAMEWORK = {
         # TODO: Assess whether this is the optimal default permission class for this use case.
     ]
 }
+
+KANBAN = {
+    "KanbanBoard_title_maxlength": 30,
+}
