@@ -5,6 +5,7 @@ from django.db.models.functions import Length
 models.CharField.register_lookup(Length, "length")
 
 KANBANBOARD_TITLE_MAXLENGTH = settings.KANBAN.get("KanbanBoard_title_maxlength")
+KANBANLIST_TITLE_MAXLENGTH = settings.KANBAN.get("KanbanList_title_maxlength")
 
 
 class KanbanBoard(models.Model):
@@ -37,9 +38,9 @@ class KanbanList(models.Model):
     # A list holds a unique, zero-indexed position in its board.
     ordinal = models.IntegerField(editable=False, default=None)
 
-    title = models.CharField(max_length=20)
+    title = models.CharField(max_length=KANBANLIST_TITLE_MAXLENGTH)
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, update_fields=None, **kwargs):
 
         # A value of None means an undefined ordinal.
         # Set this list's ordinal to the board's list count to put
@@ -48,8 +49,24 @@ class KanbanList(models.Model):
             self.ordinal = KanbanList.objects.filter(
                 kanban_board=self.kanban_board
             ).count()
+        else:
+            lists_with_this_ordinal = KanbanList.objects.filter(
+                kanban_board=self.kanban_board,
+                ordinal=self.ordinal,
+            )
+            if len(lists_with_this_ordinal) > 1:
+                KanbanList.normalize_ordinals()
+                KanbanList.shift_ordinal_range_up(start=self.ordinal)
+            elif (
+                len(lists_with_this_ordinal) == 1
+                and lists_with_this_ordinal.get().id != self.id
+            ):
+                KanbanList.shift_ordinal_range_up(start=self.ordinal)
 
-        super().save(*args, **kwargs)
+        super().save(*args, update_fields=update_fields, **kwargs)
+
+    def normalize_ordinals():
+        pass
 
     class Meta:
         # A list should be presented in the order in which it
@@ -64,7 +81,15 @@ class KanbanList(models.Model):
             models.UniqueConstraint(
                 fields=["kanban_board", "ordinal"],
                 name="UNIQUE__KanbanList__kanbanboard_ordinal",
-            )
+            ),
+            models.CheckConstraint(
+                name="CHECK__KanbanList_title__length_GT_0",
+                check=models.Q(title__length__gt=0),
+            ),
+            models.CheckConstraint(
+                name=f"CHECK__KanbanList_title__length_LTE_{KANBANLIST_TITLE_MAXLENGTH}",
+                check=models.Q(title__length__lte=KANBANLIST_TITLE_MAXLENGTH),
+            ),
         ]
 
 

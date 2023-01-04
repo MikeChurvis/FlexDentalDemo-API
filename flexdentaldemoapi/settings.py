@@ -135,4 +135,5 @@ REST_FRAMEWORK = {
 
 KANBAN = {
     "KanbanBoard_title_maxlength": 30,
+    "KanbanList_title_maxlength": 20,
 }
