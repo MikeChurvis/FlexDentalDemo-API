@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
-    "kanban",
+    # "kanban",
+    "todo",
 ]
 
 MIDDLEWARE = [
@@ -137,3 +138,5 @@ KANBAN = {
     "KanbanBoard_title_maxlength": 30,
     "KanbanList_title_maxlength": 20,
 }
+
+# AUTH_USER_MODEL = "todo.DemoUser"
